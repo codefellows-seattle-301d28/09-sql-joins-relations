@@ -6,8 +6,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-const conString = 'postgres://postgres:sunitha@localhost:5432/kilovolt';
-//const conString = 'postgres://localhost:5432';
+// const conString = 'postgres://postgres:sunitha@localhost:5432/kilovolt';
+const conString = 'postgres://localhost:5432';
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', error => {
@@ -73,13 +73,13 @@ app.post('/articles', (request, response) => {
 
 app.put('/articles/:id', function(request, response) {
   client.query(
-    `UPDATE authors SET (author = $1, "authorUrl" = $2) where author_id = $3 `,
+    `UPDATE authors SET author = $1, "authorUrl" = $2 where author_id = $3; `,
     [request.body.author, request.body.authorUrl, request.body.author_id]
   )
     .then(() => {
       client.query(
-        `UPDATE articles SET (author_id = $1, title = $2, category =$3, "publishedOn" =$4, body =$5) where aritcle_id = $6`,
-        [request.body.author_id, request.body.title, request.body.category, request.body.publishedOn, request.body.body, request.params.id]
+        `UPDATE articles SET title = $1, category =$2, "publishedOn" =$3, body =$4 where article_id = $5;`,
+        [request.body.title, request.body.category, request.body.publishedOn, request.body.body, request.params.id]
       )
     })
     .then(() => {
