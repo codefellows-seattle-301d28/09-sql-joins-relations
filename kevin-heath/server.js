@@ -54,7 +54,7 @@ app.post('/articles', (request, response) => {
 
   function queryTwo() {
     client.query(
-      `SELECT author_id FORM authors
+      `SELECT author_id FROM authors
       WHERE author = $1;`,
       [request.body.author],
       function(err, result) {
@@ -69,13 +69,14 @@ app.post('/articles', (request, response) => {
   function queryThree(author_id) {
     client.query(
       `INSERT INTO
-      atricles(body, category, "publishedOn", title)
-      VALUES($1, $2, $3, $4);`,
+      articles (body, category, "publishedOn", title, author_id)
+      VALUES($1, $2, $3, $4, $5);`,
       [
         request.body.body,
         request.body.category,
         request.body.publishedOn,
-        request.body.title
+        request.body.title,
+        author_id
       ],
       function(err) {
         if (err) console.error(err);
@@ -87,23 +88,23 @@ app.post('/articles', (request, response) => {
 
 app.put('/articles/:id', function(request, response) {
   client.query(
-    `SELECT author_id FROM articles
-    WHERE article_id = $1;`,
-    [request.params.id]
+    `UPDATE authors
+    SET author=$1, "authorUrl"=$2
+    WHERE author_id = $3;`,
+    [
+      request.body.author,
+      request.body.authorUrl,
+      request.body.author_id
+    ]
   )
     .then(() => {
       client.query(
-        `UPDATE authors
-        INNER JOIN articles
-        ON articles.author_id = authors.author_id
-        WHERE article_id = $7
+        `UPDATE articles
         SET
-        title=$1, author=$2, "authorUrl"=$3, category=$4, "publishedOn"=$5, body=$6
-          `,
+        title=$1, category=$2, "publishedOn"=$3, body=$4
+        WHERE article_id = $5;`,
         [
           request.body.title,
-          request.body.author,
-          request.body.authorUrl,
           request.body.category,
           request.body.publishedOn,
           request.body.body,
@@ -133,7 +134,7 @@ app.delete('/articles/:id', (request, response) => {
 });
 
 app.delete('/articles', (request, response) => {
-  client.query('DELETE FROM articles')
+  client.query('DELETE FROM articles;')
     .then(() => {
       response.send('Delete complete');
     })
@@ -158,7 +159,7 @@ function loadAuthors() {
   fs.readFile('./public/data/hackerIpsum.json', 'utf8', (err, fd) => {
     JSON.parse(fd).forEach(ele => {
       client.query(
-        'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING',
+        'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING;',
         [ele.author, ele.authorUrl]
       )
     })
