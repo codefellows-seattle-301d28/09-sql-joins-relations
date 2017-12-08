@@ -25,7 +25,7 @@ app.get('/new', (request, response) => {
 
 // REVIEW: These are routes for making API calls to enact CRUD operations on our database.
 app.get('/articles', (request, response) => {
-  client.query(`SELECT * FROM articles INNER JOIN authors ON articles.author_id=authors.author_id`)
+  client.query(`SELECT * FROM authors INNER JOIN articles ON articles.author_id=authors.author_id`)
     .then(result => {
       response.send(result.rows);
     })
@@ -36,7 +36,7 @@ app.get('/articles', (request, response) => {
 
 app.post('/articles', (request, response) => {
   client.query(
-    'INSERT INTO articles (author, "authorUrl", body, category, "publishedOn", title) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+    'INSERT INTO authors (author, "authorUrl") VALUES ($1, $2) ON CONFLICT DO NOTHING',
     [
       request.body.author,
       request.body.authorUrl
@@ -50,7 +50,7 @@ app.post('/articles', (request, response) => {
 
   function queryTwo() {
     client.query(
-      `SELECT * FROM authors WHERE author=$1`,
+      `SELECT author_id FROM authors WHERE author=$1`,
       [
         request.body.author
       ],
@@ -83,22 +83,26 @@ app.post('/articles', (request, response) => {
 
 app.put('/articles/:id', function(request, response) {
   client.query(
-    `UPDATE articles SET title=$1, author=$2, "authorUrl"=$3, category=$4, "publishedOn"=$5, body=$6
-    WHERE article_id=$7`,
+    `UPDATE authors SET author=$1, "authorUrl"=$2
+    WHERE author_id=$3`,
     [
-      request.body.title,
       request.body.author,
       request.body.authorUrl,
-      request.body.category,
-      request.body.publishedOn,
-      request.body.body,
-      request.params.article_id
+      request.body.author_id
     ]
   )
     .then(() => {
       client.query(
-        ``,
-        []
+        `UPDATE articles SET author_id=$1, body=$2, category=$3, "publishedOn"=$4, title=$5
+        WHERE article_id=$6`,
+        [
+          request.body.author_id,
+          request.body.body,
+          request.body.category,
+          request.body.publishedOn,
+          request.body.title ,
+          request.params.id
+        ]
       )
     })
     .then(() => {
