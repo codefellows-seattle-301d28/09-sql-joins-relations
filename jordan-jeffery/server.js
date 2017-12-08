@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-const conString = '';
+const conString = 'postgres://localhost:5432';
 const client = new pg.Client(conString);
 client.connect();
 client.on('error', error => {
@@ -27,8 +27,8 @@ app.get('/new', (request, response) => {
 app.get('/articles', (request, response) => {
   client.query(
     `SELECT *
-    FROM articles
-    INNER JOIN authors
+    FROM authors
+    INNER JOIN articles
     ON articles.author_id=authors.author_id;`
   )
     .then(result => {
@@ -41,7 +41,7 @@ app.get('/articles', (request, response) => {
 
 app.post('/articles', (request, response) => {
   client.query(
-    'INSERT INTO authors(author, "authorUrl") VALUES ($1, $2);',
+    'INSERT INTO authors(author, "authorUrl") VALUES ($1, $2) ON CONFLICT DO NOTHING;',
     [
       request.body.author,
       request.body.authorUrl
@@ -57,7 +57,7 @@ app.post('/articles', (request, response) => {
     client.query(
       `SELECT author_id
       FROM authors
-      WHERE author = $1
+      WHERE author = $1;
       `,
       [request.body.author],
       function(err, result) {
@@ -72,15 +72,14 @@ app.post('/articles', (request, response) => {
   function queryThree(author_id) {
     client.query(
       `INSERT INTO
-      articles(title, category, "publishedOn", body)
-      VALUES($1, $2, $3, $4)
-      WHERE author_id=$5`,
+      articles(author_id, title, category, "publishedOn", body)
+      VALUES($1, $2, $3, $4, $5);`,
       [
+        author_id,
         request.body.title,
         request.body.category,
         request.body.publishedOn,
-        request.body.body,
-        author_id
+        request.body.body
       ],
       function(err) {
         if (err) console.error(err);
@@ -94,8 +93,8 @@ app.put('/articles/:id', function(request, response) {
   client.query(
     `UPDATE articles
     SET
-    author_id=$1, title=$2, category=$3, "publishedOn"=$4, body=$5,
-    WHERE article_id=$6`,
+    author_id=$1, title=$2, category=$3, "publishedOn"=$4, body=$5
+    WHERE article_id=$6;`,
     [
       request.body.author_id,
       request.body.title,
@@ -110,7 +109,7 @@ app.put('/articles/:id', function(request, response) {
         `UPDATE authors
         SET
         author=$1, "authorUrl"=$2
-        WHERE author_id=$3`,
+        WHERE author_id=$3;`,
         [
           request.body.author,
           request.body.authorUrl,
@@ -140,7 +139,7 @@ app.delete('/articles/:id', (request, response) => {
 });
 
 app.delete('/articles', (request, response) => {
-  client.query('DELETE FROM articles')
+  client.query('DELETE FROM articles;')
     .then(() => {
       response.send('Delete complete');
     })
@@ -165,7 +164,7 @@ function loadAuthors() {
   fs.readFile('./public/data/hackerIpsum.json', 'utf8', (err, fd) => {
     JSON.parse(fd).forEach(ele => {
       client.query(
-        'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING',
+        'INSERT INTO authors(author, "authorUrl") VALUES($1, $2) ON CONFLICT DO NOTHING;',
         [ele.author, ele.authorUrl]
       )
     })
@@ -174,7 +173,7 @@ function loadAuthors() {
 
 // REVIEW: This helper function will load articles into the DB if the DB is empty.
 function loadArticles() {
-  client.query('SELECT COUNT(*) FROM articles')
+  client.query('SELECT COUNT(*) FROM articles;')
     .then(result => {
       if(!parseInt(result.rows[0].count)) {
         fs.readFile('./public/data/hackerIpsum.json', 'utf8', (err, fd) => {
