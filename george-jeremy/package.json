@@ -1,0 +1,34 @@
+{
+  "name": "kilovolt-blog",
+  "version": "1.0.0",
+  "description": "As we now complete our MVC conversation, we can refactor our app to use good MVC separation of concerns.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Code Fellows",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.13.3",
+    "body-parser": "^1.15.2",
+    "pg": "^6.1.2"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpjazzy/09-sql-joins-relations.git"
+  },
+  "keywords": [
+    "kilovolt",
+    "blog",
+    "server",
+    "serverjs",
+    "node",
+    "npm"
+  ],
+  "bugs": {
+    "url": "https://github.com/jpjazzy/09-sql-joins-relations/issues"
+  },
+  "homepage": "https://github.com/jpjazzy/09-sql-joins-relations#readme"
+}
