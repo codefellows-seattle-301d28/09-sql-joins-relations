@@ -1,22 +1,19 @@
 # Project Name
 
-**Author**: Roger Davenport and Richard Montgomary
-**Version**: 1.0.1 
+**Author**: Roger Davenport and Richard Montgomery
+**Version**: 1.0.1
 
 ## Overview
-<!-- Provide a high level overview of what this application is and why you are building it, beyond the fact that it's an assignment for a Code Fellows 301 class. (i.e. What's your problem domain?) -->
+The Overview of today's lab was to use SQL to join data from two tables and insert author information to post and to put into the database.
 
 ## Getting Started
-<!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
+We installed our node modules and edited the conString when alternating between platforms. We joined data from two tables, worked on a function that would create a new article by using the author_id from our database, and another that would update the article by the author_id in both the articles table and the authors table.
 
 ## Architecture
-<!-- Provide a detailed description of the application design. What technologies (languages, libraries, etc) you're using, and any other relevant design information. -->
+JavaScript and SQL
 
 ## Change Log
-<!-- Use this are to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
-
-01-01-2001 4:59pm - Application now has a fully-functional express server, with GET and POST routes for the book resource.
+12-08-2017 2:00pm Updated server.js to utilize two tables to append and update content to the front-end.
 
 ## Credits and Collaborations
-<!-- Give credit (and a link) to other people or resources that helped you build this application. -->
--->
+Richard/Roger and a huge thank you to Kat and classmates.
